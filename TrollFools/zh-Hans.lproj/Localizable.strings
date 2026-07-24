@@ -26,6 +26,15 @@
 "All Applications" = "所有应用";
 
 /* No comment provided by engineer. */
+"Favorite" = "收藏";
+
+/* No comment provided by engineer. */
+"Favorites" = "收藏应用";
+
+/* No comment provided by engineer. */
+"Favorite Applications" = "收藏应用";
+
+/* No comment provided by engineer. */
 "And %d more unsupported user applications." = "另有 %d 个不支持的用户应用。";
 
 /* No comment provided by engineer. */

@@ -26,6 +26,8 @@ struct OptionView: View {
     @AppStorage("isWarningHidden")
     var isWarningHidden: Bool = false
 
+    @EnvironmentObject var appList: AppListModel
+
     init(_ app: App) {
         self.app = app
     }
@@ -170,6 +172,15 @@ struct OptionView: View {
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
+            Button {
+                appList.toggleFavoriteApp(app.bid)
+            } label: {
+                Image(systemName: appList.isFavoriteApp(app.bid)
+                    ? "star.fill"
+                    : "star")
+            }
+            .accessibilityLabel(NSLocalizedString("Favorite", comment: ""))
+
             if verticalSizeClass == .compact {
                 Button {
                     isSettingsPresented = true

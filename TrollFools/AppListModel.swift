@@ -12,47 +12,53 @@ import SwiftUI
 
 final class AppListModel: ObservableObject {
     enum Scope: Int, CaseIterable {
-        case all
+        case favorites
         case user
         case troll
         case system
+        case all
 
         var localizedShortName: String {
             switch self {
-            case .all:
-                NSLocalizedString("All", comment: "")
+            case .favorites:
+                NSLocalizedString("Favorites", comment: "")
             case .user:
                 NSLocalizedString("User", comment: "")
             case .troll:
                 NSLocalizedString("TrollStore", comment: "")
             case .system:
                 NSLocalizedString("System", comment: "")
+            case .all:
+                NSLocalizedString("All", comment: "")
             }
         }
 
         var localizedName: String {
             switch self {
-            case .all:
-                NSLocalizedString("All Applications", comment: "")
+            case .favorites:
+                NSLocalizedString("Favorite Applications", comment: "")
             case .user:
                 NSLocalizedString("User Applications", comment: "")
             case .troll:
                 NSLocalizedString("TrollStore Applications", comment: "")
             case .system:
                 NSLocalizedString("Injectable System Applications", comment: "")
+            case .all:
+                NSLocalizedString("All Applications", comment: "")
             }
         }
     }
 
     static let isLegacyDevice: Bool = { UIScreen.main.fixedCoordinateSpace.bounds.height <= 736.0 }()
     static let hasTrollStore: Bool = { LSApplicationProxy(forIdentifier: "com.opa334.TrollStore") != nil }()
+    private static let favoritesKey = "TrollFoolsFavorites"
     private var _allApplications: [App] = []
 
     let selectorURL: URL?
     var isSelectorMode: Bool { selectorURL != nil }
 
     @Published var filter = FilterOptions()
-    @Published var activeScope: Scope = .all
+    @Published var activeScope: Scope = .favorites
     @Published var activeScopeApps: OrderedDictionary<String, [App]> = [:]
 
     @Published var unsupportedCount: Int = 0
@@ -135,6 +141,8 @@ final class AppListModel: ObservableObject {
         }
 
         switch activeScope {
+        case .favorites:
+            activeScopeApps = Self.groupedAppList(filteredApplications.filter { isFavoriteApp($0.bid) })
         case .all:
             activeScopeApps = Self.groupedAppList(filteredApplications)
         case .user:
@@ -144,6 +152,21 @@ final class AppListModel: ObservableObject {
         case .system:
             activeScopeApps = Self.groupedAppList(filteredApplications.filter { $0.isFromApple })
         }
+    }
+
+    func isFavoriteApp(_ bid: String) -> Bool {
+        (UserDefaults.standard.stringArray(forKey: Self.favoritesKey) ?? []).contains(bid)
+    }
+
+    func toggleFavoriteApp(_ bid: String) {
+        var ids = Set(UserDefaults.standard.stringArray(forKey: Self.favoritesKey) ?? [])
+        if ids.contains(bid) {
+            ids.remove(bid)
+        } else {
+            ids.insert(bid)
+        }
+        UserDefaults.standard.set(Array(ids), forKey: Self.favoritesKey)
+        performFilter()
     }
 
     private static let excludedIdentifiers: Set<String> = [

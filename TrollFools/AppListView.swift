@@ -33,13 +33,7 @@ struct AppListView: View {
     @AppStorage("isWarningHidden")
     var isWarningHidden: Bool = false
 
-    var shouldShowAdvertisement: Bool {
-        !isAdvertisementHidden &&
-            !appList.filter.isSearching &&
-            !appList.filter.showPatchedOnly &&
-            !appList.isRebuildNeeded &&
-            !appList.isSelectorMode
-    }
+    var shouldShowAdvertisement: Bool { false }
 
     var appString: String {
         let appNameString = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "TrollFools"
@@ -213,7 +207,7 @@ struct AppListView: View {
                 appList.filter.searchKeyword = $0
             }
             .onReceive(searchViewModel.$searchScopeIndex) {
-                appList.activeScope = Scope(rawValue: $0) ?? .all
+                appList.activeScope = Scope(rawValue: $0) ?? .favorites
             }
             .introspect(.viewController, on: .iOS(.v14, .v15, .v16, .v17, .v18)) { viewController in
                 viewController.navigationItem.hidesSearchBarWhenScrolling = true
