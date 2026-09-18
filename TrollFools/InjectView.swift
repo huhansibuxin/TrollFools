@@ -38,15 +38,9 @@ struct InjectView: View {
 
     var body: some View {
         if appList.isSelectorMode {
+            // 选择器模式：隐藏左上角"取消"返回键，改用注入完成后的居中大"完成"按钮关闭
             bodyContent
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(NSLocalizedString("Done", comment: "")) {
-                            viewControllerHost.viewController?.navigationController?
-                                .dismiss(animated: true)
-                        }
-                    }
-                }
+                .navigationBarBackButtonHidden(true)
         } else {
             bodyContent
         }
@@ -75,6 +69,25 @@ struct InjectView: View {
                     .onAppear {
                         app.reload()
                     }
+                }
+
+                // 选择器模式：注入完成（成功/失败）后显示居中大号"完成"按钮，
+                // 替代原右上角小按钮，便于注入完直接点按关闭。
+                if appList.isSelectorMode {
+                    Button {
+                        viewControllerHost.viewController?.navigationController?
+                            .dismiss(animated: true)
+                    } label: {
+                        Text(NSLocalizedString("Done", comment: ""))
+                            .font(.title.bold())
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 8)
                 }
             } else {
                 if #available(iOS 16, *) {
